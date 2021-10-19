@@ -212,3 +212,82 @@ tidy_brfss %>%
   ) 
 ```
 
+## Problem 3
+
+**3.1 Tidy data**
+
+```{r}
+accel_df = 
+  read.csv("./accel_data.csv") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(
+    activity_1:activity_1440,
+    names_to = "activity",
+    values_to = "observation"
+  ) %>% 
+  mutate(
+    day = factor(day),
+    day = fct_relevel(day, "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+  ) %>% 
+  mutate(
+    day_type = case_when(
+      day %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday") ~ "Weekday",
+      day %in% c("Saturday", "Sunday") ~ "Weekend"
+    )
+  ) %>% 
+  select(week, day_id, day, day_type, everything()) %>% 
+  arrange(week, day)
+
+accel_df
+```
+
+There are `names(accel_df)` 6 variables after tidying the data. We create a new variable "day_type" according to "day" values, and we pivoted longer this dataset. Finally, there are `nrow(accel_df)` rows and `ncol(accel_df)` columns in this dataset. There are `nrow(distinct(accel_df, week))` weeks, and in each week, there are `nrow(distinct(accel_df, day))` days. Also, for each day, there are 1440 observations.
+
+**3.2 Total activity**
+
+```{r message=FALSE}
+accel_df %>% 
+  group_by(week, day) %>% 
+  summarize(total_of_day = sum(observation)) %>% 
+  pivot_wider(
+    names_from = "day", 
+    values_from = "total_of_day"
+  ) %>% 
+  knitr::kable()
+```
+
+I could not see apparent trend in this chart. 
+
+Little trend has been shown that for the first 3 weeks, weekends have higher activity than weekdays, while for the 4th and 5th week, this situation reversed. 
+
+What is also worth noticing that for the Saturdays in week 4 and 5, the sum is 1440, which means for each minute in the day, the observation is 1, which is really uncommon. I assume that the device may collapse through these 2 days. 
+
+And if we view this chart horizontally, there exists a slightly increasing trend for activity counts from week 1 to week 5.
+
+**3.3 24-hour activity** 
+
+```{r}
+accel_df %>% 
+  mutate(
+    activity = substring(activity, 10),
+    activity = as.integer(activity)
+  ) %>% 
+  ggplot(aes(x = activity, y = observation, color = day)) +
+  geom_line() +
+  scale_x_continuous(
+    breaks = c(0, 120, 240, 360, 480, 600, 720, 840, 960, 1080, 1200, 1320, 1440),
+    labels = c("0", "2", "4", "6", "8", "10", "12", "14", "16", "18", "20", "22", "24")
+  ) +
+  labs(
+        title = "24-hour Activity Time Courses for Each Day ",
+        x = "Time of Day (hour)",
+        y = "Activity Level"
+  ) +
+  theme(legend.position = "bottom")
+```
+
+We can see from this graph that: 
+
+1) Generally, on weekends, the patient shows lower activity level than weekdays, except on Sunday noon around 11:00 AM, there is a significantly higher activity level than any other days at this time point;
+
+2) For all the days in a week, the most "active" time for this individual appears between 19:00 and 22:00, and the most "inactive" time lies betweeen 0:00 to 4:00, which I assume should be attributed to the sleep.
