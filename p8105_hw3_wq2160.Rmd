@@ -41,9 +41,9 @@ data("instacart")
 
 **Description**
 
-This data set contains `nrow(distinct(instacart, order_id))` orders information, with `nrow(instacart)` rows and `ncol(instacart)` columns. The key variables in this data set including `names(instacart)`. 
+This data set contains `r nrow(distinct(instacart, order_id))` orders information, with `r nrow(instacart)` rows and `r ncol(instacart)` columns. The key variables in this data set including `r names(instacart)`. 
 
-To give a simple example on how to illustrate this chart, we could take the `ins_eg = filter(instacart, order_id == "1") `. For this order, number of `nrow(ins_eg)` items was purchased, with item names  `pull(ins_eg, product_name)` and item id `pull(ins_eg, product_id)`. For these items, the aisle_id, department_id and aisle name were provided to locate the product. Also, we can get the information fo the customer purchase behavior, such as the order these items were added to the cart, purchase time, times and intervals of reordering each item.
+To give a simple example on how to illustrate this chart, we could take the order with id = 1. `r ins_eg = filter(instacart, order_id == "1") ` For this order, number of `r nrow(ins_eg)` items was purchased, with item names  `r pull(ins_eg, product_name)` and item id `r pull(ins_eg, product_id)`. For these items, the aisle_id, department_id and aisle name were provided to locate the product. Also, we can get the information fo the customer purchase behavior, such as the order these items were added to the cart, purchase time, times and intervals of reordering each item.
 
 **1.1 Aisle information**
 
@@ -53,7 +53,7 @@ instacart %>%
     arrange(desc(n))
 ```
 
-There are 134 aisles, and the most items are ordered from the **fresh vegetables** aisle. "fresh fruits", "packaged vegetables fruits" and "yogurt" are also popular aisles.
+There are `r instacart %>% distinct(aisle) %>% count()` aisles, and the most items are ordered from the **fresh vegetables** aisle. "fresh fruits", "packaged vegetables fruits" and "yogurt" are also popular aisles.
 
 **1.2 Aisle plot**
 
@@ -241,7 +241,7 @@ accel_df =
 accel_df
 ```
 
-There are `names(accel_df)` 6 variables after tidying the data. We create a new variable "day_type" according to "day" values, and we pivoted longer this dataset. Finally, there are `nrow(accel_df)` rows and `ncol(accel_df)` columns in this dataset. There are `nrow(distinct(accel_df, week))` weeks, and in each week, there are `nrow(distinct(accel_df, day))` days. Also, for each day, there are 1440 observations.
+There are `r names(accel_df)` 6 variables after tidying the data. We create a new variable "day_type" according to "day" values, and we pivoted longer this dataset. Finally, there are `r nrow(accel_df)` rows and `r ncol(accel_df)` columns in this dataset. There are `r nrow(distinct(accel_df, week))` weeks, and in each week, there are `r nrow(distinct(accel_df, day))` days. Also, for each day, there are 1440 observations.
 
 **3.2 Total activity**
 
