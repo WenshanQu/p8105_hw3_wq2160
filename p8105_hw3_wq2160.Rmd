@@ -113,3 +113,102 @@ day_df =
 day_df
 ```
 
+
+## Problem 2
+
+Load the data set `BRFSS`.
+```{r}
+data("brfss_smart2010")
+```
+
+**2.1 Data cleaning**
+
+```{r}
+tidy_brfss = 
+  brfss_smart2010 %>% 
+  janitor::clean_names() %>% 
+  filter(topic == "Overall Health") %>% 
+  drop_na(response) %>% ## Except 5 responses, there are only null value, so we use drop_na.
+  mutate(
+    response = factor(response),
+    response = fct_relevel(response, "Poor", "Fair", "Good", "Very good", "Excellent")
+  ) %>% 
+  arrange(response)
+
+tidy_brfss
+```
+
+**2.2 2002 locations**
+
+```{r}
+state_obs_2002 = 
+  tidy_brfss %>% 
+  filter(year == "2002") %>% 
+  group_by(locationabbr) %>% 
+  summarize(county = n_distinct(locationdesc)) %>% 
+  filter(county >= 7) %>% 
+  knitr::kable(aligh = "c")
+
+state_obs_2002
+```
+
+In 2002, 6 states including CT, FL, MA, NC, NJ and PA were observed at 7 or more locations.
+
+```{r}
+state_obs_2010 = 
+  tidy_brfss %>% 
+  filter(year == "2010") %>% 
+  group_by(locationabbr) %>% 
+  summarize(county = n_distinct(locationdesc)) %>% 
+  filter(county >= 7) %>% 
+  knitr::kable(aligh = "c")
+
+state_obs_2010
+```
+
+In 2010, 14 states including CA, CO, FL, MA, MD, NC, NE, NJ, NY, OH, PA, SC, TX and WA were observed at 7 or more locations.
+
+**2.3 Excellent plot**
+
+```{r message=FALSE}
+tidy_brfss %>% 
+  filter(response == "Excellent") %>% 
+  group_by(year, locationabbr) %>% 
+  summarize(
+    state_mean = mean(data_value, na.rm = TRUE)
+  ) %>% 
+  ggplot(aes(x = year, y = state_mean, color = locationabbr)) +
+  geom_line() +
+  theme(legend.position = "right") +
+  viridis::scale_color_viridis(
+    name = "state",
+    discrete = TRUE
+  ) +
+  labs(
+    title = "Spaghetti plot within each state over time",
+    x = "Year",
+    y = "Average value in each state"
+  )
+```
+
+**2.4 NY state**
+
+```{r}
+tidy_brfss %>% 
+  filter(
+    locationabbr == "NY",
+    year %in% c(2006, 2010)
+  ) %>% 
+  rename(state = locationabbr, county = locationdesc) %>% 
+  mutate(county = substring(county, 6)) %>% 
+  group_by(year, county) %>% 
+  ggplot(aes(x = response, y = data_value, fill = county)) +
+  geom_col(position = "dodge") +
+  facet_grid(. ~ year) +
+  labs(
+    title = "Value for responses among locations in NY for 2006 and 2010",
+    x = "Response",
+    y = "Data value for responses"
+  ) 
+```
+
