@@ -84,7 +84,7 @@ aisle_df =
   group_by(aisle) %>% 
   count(product_name) %>% 
   arrange(aisle, desc(n)) %>% 
-  filter(row_number() == 1) %>% 
+  filter(row_number() <= 3) %>% 
   rename(most_popular_product = product_name, ordered_times = n) %>% 
   knitr::kable(digits = 2)
 
@@ -93,7 +93,7 @@ aisle_df
 
 **1.4 Product and day** 
 
-```{r}
+```{r message=FALSE}
 day_df = 
   instacart %>% 
   filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
