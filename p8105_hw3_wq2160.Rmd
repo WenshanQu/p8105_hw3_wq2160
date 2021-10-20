@@ -212,6 +212,27 @@ tidy_brfss %>%
   ) 
 ```
 
+I also want to show the graph without county facet like this:
+
+```{r}
+tidy_brfss %>% 
+  filter(
+    locationabbr == "NY",
+    year %in% c(2006, 2010)
+  ) %>%
+  ggplot(aes(x = response, y = data_value, fill = response)) + 
+  geom_boxplot() + 
+  labs(
+      title = "Distribution of data value for responses in NY",
+      x = "Response",
+      y = "Data value"
+      ) +
+  facet_grid(. ~ year)
+```
+
+The reason that I used two kinds of graphs to illustrate this problem is that I am not sure about the true meaning of `among locations in NY` mentioned in the problem. But given these two graphs --- with or without county facet --- are useful, I showed both of them here.
+
+
 ## Problem 3
 
 **3.1 Tidy data**
